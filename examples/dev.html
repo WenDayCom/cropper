@@ -126,7 +126,7 @@
 		//console.log(croppedCanvas);
 
         // Show
-        //$('#result').html('<img src="'+croppedCanvas.toDataURL('image/jpeg',50)+'">');
+        $('#result').html('<img src="'+croppedCanvas.toDataURL('image/jpeg',50)+'">');
 
 		croppedCanvas.toBlob(function(blob){
 			//alert(blob);
@@ -155,7 +155,7 @@
 			});
 
 
-		},'image/jpeg',70);
+		},'image/jpeg',90);
 
       });
 		}

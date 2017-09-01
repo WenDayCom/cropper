@@ -16,7 +16,7 @@ window.onload = function () {
   var options = {
 		minContainerHeight :  screenHeight,
 		minContainerWidth : screenWidth,
-        aspectRatio: 1 / 1,//裁剪框比例 1：1
+        aspectRatio: 3 / 4,//裁剪框比例 1：1
         viewMode : 1,//显示
         guides :false,//裁剪框虚线 默认true有
         dragMode : "move",
@@ -34,6 +34,7 @@ window.onload = function () {
 		movable : true,//是否能移动图片
 		cropBoxMovable :false,//是否允许拖动裁剪框
 		cropBoxResizable :false,//是否允许拖动 改变裁剪框大小
+		//rotatable: true, //可旋转
       };
   var cropper = new Cropper(image, options);
 
@@ -114,10 +115,16 @@ window.onload = function () {
 
         case 'getCroppedCanvas':
           if (result) {
-        	  
+			//preview 
             fileImg = result.toDataURL('image/jpg');
             $("#showImg").attr("src",fileImg).show();
             $("#photoBtn").val("重新选择");
+
+			result.toBlob(function(blob){
+				fileImg = blob;
+				console.log(fileImg);
+			},'image/jpeg',90);
+
           }
 
           break;
@@ -157,8 +164,9 @@ window.onload = function () {
           blobURL = URL.createObjectURL(file);
           cropper.reset().replace(blobURL);
         } else {
-          window.alert('Please choose an image file.');
+          window.alert('请选择一个图片文件.');
         }
+
       }
       $(inputImage).find("img").hide();
     };
@@ -166,5 +174,7 @@ window.onload = function () {
     inputImage.disabled = true;
     inputImage.parentNode.className += ' disabled';
   }
+
+	
 
 };
