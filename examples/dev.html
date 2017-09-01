@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Cropper</title>
+  <link rel="stylesheet" href="../dist/cropper.css">
+  <style>
+    .container {
+      max-width: 640px;
+      margin: 20px auto;
+    }
+
+    img {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Cropper with fixed crop box</h1>
+    <div>
+      <img id="image" src="" alt="Picture">
+    </div>
+
+上传后的图片：<br>
+<div id="afterUpload"></div><br>
+
+<input type="file" id="fileUp" name="fileUp" onchange="beginCut()" accept="image/gif,image/jpeg,image/png" />
+
+    <h3>Result</h3>
+    <button type="button" id="button">Crop</button>
+
+    <div id="result"></div><br>
+	<div id="result2"></div><br>
+
+	<div id="canvas"></div><br>
+  </div>
+
+
+
+
+  <!-- Scripts -->
+  <script src="jquery.min.js"></script>
+  <script src="canvas-to-blob.min.js"></script>
+  <script src="../dist/cropper.js"></script>
+  <script>
+    var $fileUp=$("#fileUp");
+    //兼容性判定
+    var support={
+        fileList: !!$('<input type="file">').prop('files'),
+        blobURLs: !!window.URL && URL.createObjectURL,
+        formData: !!window.FormData
+    };
+    support.datauri = support.fileList && support.blobURLs;
+    function isImageFile(file) {
+        if (file.type) {
+            return /^image\/\w+$/.test(file.type);
+        } else {
+            return /\.(jpg|jpeg|png|gif)$/.test(file);
+        }
+    }
+    var files,file;
+    function beginCut()
+    {
+    	//不兼容的情况未做处理，可自行参考官方php example中的解决方法
+    	if(support.datauri)
+    	{
+           files=$fileUp.prop("files");
+           if(files.length>0){
+                    file=files[0];
+            }
+            if(isImageFile(file)){
+                picUrl=URL.createObjectURL(file);
+				console.log(picUrl);
+				$('#afterUpload').html('');
+				startCropper(picUrl)
+            }
+    	}
+    }
+
+	var active=false;
+    function startCropper(picUrl) {
+		
+
+      var $image = $('#image'),croppable=false;
+
+
+		if(active){
+		  $image.cropper('replace',picUrl);
+		  return;
+		}else{
+
+      $image.cropper({
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 0.65,
+		aspectRatio: 0.75,
+        restore: false,
+        guides: false,
+        highlight: false,
+        cropBoxMovable: false,
+        cropBoxResizable: false,
+		rotatable: true,
+        ready: function () {
+          croppable = true;
+        },
+		done: function(data){
+			//console.log(data);
+		}
+      });
+
+
+      $('#button').on('click', function () {
+        var croppedCanvas;
+
+        if (!croppable) {
+          return;
+        }
+
+        // Crop
+        croppedCanvas = $image.cropper('getCroppedCanvas');
+
+		//console.log(croppedCanvas);
+
+        // Show
+        //$('#result').html('<img src="'+croppedCanvas.toDataURL('image/jpeg',50)+'">');
+
+		croppedCanvas.toBlob(function(blob){
+			//alert(blob);
+			var formData=new FormData();
+			formData.append('files',blob,'xxx.jpg');
+
+			$.ajax({
+				method:"post",
+				url: '/upload.php', //用于文件上传的服务器端请求地址
+				data: formData,
+				processData: false,
+				contentType: false,
+				success:function(result){
+					//console.log(result);
+					//alert(result.src);
+					if(typeof result=="string")
+					{
+						result=$.parseJSON(result);
+					}
+					if(result.src && result.src.length){
+						$('#afterUpload').html('<img src='+result.src+' />')
+					}
+					
+				}
+
+			});
+
+
+		},'image/jpeg',70);
+
+      });
+		}
+
+
+		active= true;
+    }
+
+
+  </script>
+</body>
+</html>
