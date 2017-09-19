@@ -98,9 +98,10 @@
 	
 	//提交表达
 	function submitForm(){
-		$("#registerForm").attr("enctype","multipart/form-data");
+		
 		
 		var formData = new FormData($("#registerForm")[0]);
+		$("#registerForm").attr("enctype","multipart/form-data");
 		//formData.append("imgBase64",encodeURIComponent(fileImg));//
 		//formData.append("fileFileName","photo.jpg");
 		formData.append('files',fileImg,'upload.jpg')
